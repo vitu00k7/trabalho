@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Lista de Tarefas</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-SgOJa3DmI69IUzQ2PVdRZhwQ+dy64/BUtbMJw1MZ8t5HZApcHrRKUc4W0kG879m7" crossorigin="anonymous">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        #novaTarefa {
+            width: 70%;
+            padding: 8px;
+        }
+        button {
+            padding: 8px 15px;
+        }
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+        li {
+            margin: 10px 0;
+            padding: 10px;
+            background: #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+        }
+        .concluida {
+            text-decoration: line-through;
+            color: #888;
+        }
+        .selecao{
+          justify-content: flex-start;
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Minha Lista de Tarefas</h1>
+    
+    <div>
+        <input type="text" id="novaTarefa" placeholder="Digite uma nova tarefa">
+        <button onclick="adicionarTarefa()">Adicionar</button>
+    </div>
+    
+    
+    <ul id="listaTarefas"></ul>
+
+    <select class="selecao" aria-label="Default select example">
+        <option selected>todos</option>
+        <option value="1">pendente</option>
+        <option value="2">concluidos</option>
+      </select>
+
+    <script>
+        // Carrega tarefas salvas quando a página abre
+        let tarefas = JSON.parse(localStorage.getItem('tarefas')) || [];
+        mostrarTarefas();
+
+        function adicionarTarefa() {
+            const input = document.getElementById('novaTarefa');
+            const texto = input.value.trim();
+            
+            if (texto !== '') {
+                tarefas.push({
+                    id: Date.now(),
+                    texto: texto,
+                    concluida: false
+                });
+                
+                input.value = '';
+                salvarTarefas();
+                mostrarTarefas();
+            }
+        }
+
+        function mostrarTarefas() {
+            const lista = document.getElementById('listaTarefas');
+            lista.innerHTML = '';
+            
+            tarefas.forEach(tarefa => {
+                const item = document.createElement('li');
+                if (tarefa.concluida) {
+                    item.classList.add('concluida');
+                }
+                
+                item.innerHTML = `
+                    <span onclick="marcarComoConcluida(${tarefa.id})">${tarefa.texto}</span>
+                    <button onclick="removerTarefa(${tarefa.id})">X</button>
+                `;
+                
+                lista.appendChild(item);
+            });
+        }
+
+        function marcarComoConcluida(id) {
+            tarefas = tarefas.map(tarefa => {
+                if (tarefa.id === id) {
+                    return {...tarefa, concluida: !tarefa.concluida};
+                }
+                return tarefa;
+            });
+            
+            salvarTarefas();
+            mostrarTarefas();
+        }
+
+        function removerTarefa(id) {
+            tarefas = tarefas.filter(tarefa => tarefa.id !== id);
+            salvarTarefas();
+            mostrarTarefas();
+        }
+
+        function salvarTarefas() {
+            localStorage.setItem('tarefas', JSON.stringify(tarefas));
+        }
+    </script>
+</body>
+</html>
